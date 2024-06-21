@@ -7,7 +7,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:socialmedia/model/user_model.dart';
 import 'package:socialmedia/view/home_screen.dart';
-import 'package:socialmedia/view/login_screen.dart';
+import 'package:socialmedia/view/start_up_widget/login_screen.dart';
+import 'package:socialmedia/view/widget/bottombar.dart';
 
 class UserAuthServices {
   FirebaseAuth firebaseAuth = FirebaseAuth.instance;
@@ -41,7 +42,7 @@ class UserAuthServices {
       log('success');
     }
     Navigator.of(context).push(MaterialPageRoute(
-      builder: (context) => HomeScreen(),
+      builder: (context) => LoginScreen(),
     ));
     return user;
   }
@@ -53,11 +54,9 @@ class UserAuthServices {
 
     if (firebaseAuth.currentUser!.emailVerified) {
       return credential.user;
-    } else {
-      log('email not verified');
-    }
+    } 
     Navigator.of(context).push(MaterialPageRoute(
-      builder: (context) =>const HomeScreen(),
+      builder: (context) => const Bottombar(),
     ));
   }
 
@@ -68,4 +67,8 @@ class UserAuthServices {
     ));
     log('loged out');
   }
+
+ 
+
+ 
 }

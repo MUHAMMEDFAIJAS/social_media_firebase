@@ -43,7 +43,7 @@ class SignupScreen extends StatelessWidget {
                   emailController.text,
                   passwordController.text,
                   usernameController.text,
-                 context,
+                  context,
                 );
               },
               child: const Text('register '))
