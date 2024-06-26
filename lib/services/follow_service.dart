@@ -1,10 +1,14 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:socialmedia/model/user_model.dart';
 
 class FollowService {
+
+
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   Future<List<UserModel>> getUserFollowers(String userId) async {
@@ -98,4 +102,19 @@ class FollowService {
       throw Exception("gett data is error $e");
     }
   }
+
+
+  // //   // /// 
+
+
+   CollectionReference firestores =
+      FirebaseFirestore.instance.collection('users');
+
+  Stream<List<UserModel>> getusers() {
+   return firestores.snapshots().map((snapshot) => snapshot.docs
+        .map((docs) => UserModel.fromJson(docs.data() as Map<String, dynamic>))
+        .toList());
+  }
+
+
 }

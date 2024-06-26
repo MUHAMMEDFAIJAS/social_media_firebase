@@ -1,9 +1,8 @@
 import 'dart:developer';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:socialmedia/view/home_screen.dart';
-import 'package:socialmedia/view/search_screen.dart';
+import 'package:socialmedia/view/post_screen.dart';
 import 'package:socialmedia/view/users_screen.dart';
 import 'package:socialmedia/view/profile_screens.dart';
 
@@ -19,7 +18,7 @@ class _BottombarState extends State<Bottombar> {
 
   final List<Widget> screens = [
     const HomeScreen(),
-    const Searchscreen(),
+    PostScreen(),
     UsersScreen(),
     ProfileScreen(
       userId: FirebaseAuth.instance.currentUser!.uid,
@@ -43,7 +42,7 @@ class _BottombarState extends State<Bottombar> {
         backgroundColor: Colors.amber,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
+          BottomNavigationBarItem(icon: Icon(Icons.add), label: 'post'),
           BottomNavigationBarItem(
               icon: Icon(Icons.supervised_user_circle_sharp), label: 'users'),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),

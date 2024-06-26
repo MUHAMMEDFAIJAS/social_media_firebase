@@ -16,10 +16,7 @@ class UserFollowersPage extends StatelessWidget {
 
     final currentuser = FirebaseAuth.instance.currentUser!.uid;
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 45, 40, 40),
-      appBar: AppBar(
-        backgroundColor: const Color.fromARGB(255, 45, 40, 40),
-      ),
+      backgroundColor: Colors.lightBlue,
       body: FutureBuilder<List<UserModel>>(
         future: FollowService().getUserFollowers(userId!),
         builder: (context, AsyncSnapshot<List<UserModel>> snapshot) {
@@ -52,7 +49,7 @@ class UserFollowersPage extends StatelessWidget {
                       height: 70,
                       decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(20),
-                          color: const Color.fromARGB(255, 34, 30, 27)),
+                          color: Colors.white),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -66,7 +63,7 @@ class UserFollowersPage extends StatelessWidget {
                               Text(
                                 data.username.toString(),
                                 style: const TextStyle(
-                                    fontSize: 17, color: Colors.white),
+                                    fontSize: 17, color: Colors.black),
                               ),
                             ],
                           ),

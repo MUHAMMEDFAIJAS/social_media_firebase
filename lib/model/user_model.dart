@@ -2,6 +2,7 @@ class UserModel  {
   String? username;
   String? useremail;
   String? userid;
+  
 
   String? userimage;
   int? followers;
