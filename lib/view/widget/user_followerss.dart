@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
@@ -5,33 +7,38 @@ import 'package:socialmedia/model/user_model.dart';
 import 'package:socialmedia/services/follow_service.dart';
 import 'package:socialmedia/view/profile_screens.dart';
 
-class UserFollowersPage extends StatelessWidget {
+class userfollowers extends StatelessWidget {
   String? userId;
-  UserFollowersPage({super.key, this.userId});
-  FollowService followService = FollowService();
+  userfollowers({super.key, this.userId});
+  //  follows\\ folloservice = FollowService();
+  FollowService folloservice = FollowService();
+
   @override
   Widget build(BuildContext context) {
-    // final provider =
-    //     Provider.of<FollowServiceController>(context, listen: false);
-
-    final currentuser = FirebaseAuth.instance.currentUser!.uid;
+    log('userfolowing');
+    // final pro = Provider.of<FollowProvider>(context, listen: false);
+    String currentuser = FirebaseAuth.instance.currentUser!.uid;
     return Scaffold(
+      appBar: AppBar(),
       backgroundColor: Colors.lightBlue,
       body: FutureBuilder<List<UserModel>>(
-        future: FollowService().getUserFollowers(userId!),
+        future:
+        //  pro.getuserfollowers(userId!),
+         FollowService().getUserFollowers(userId!),
         builder: (context, AsyncSnapshot<List<UserModel>> snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
+            return Center(
               child: CircularProgressIndicator(),
             );
           } else if (snapshot.hasError) {
-            return const Center(
-              child: Text("error"),
+            return Center(
+              child: Text('error ${snapshot.hasError}'),
             );
           } else {
             List<UserModel> users = (snapshot.data)!
                 .where((user) => user.userid != currentuser)
                 .toList();
+
             return ListView.builder(
               itemCount: users.length,
               itemBuilder: (context, index) {
@@ -41,9 +48,8 @@ class UserFollowersPage extends StatelessWidget {
                   child: InkWell(
                     onTap: () {
                       Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) =>
-                            ProfileScreen(userId: data.userid ?? ""),
-                      ));
+                          builder: (context) =>
+                              ProfileScreen(userId: data?.userid ?? " ")));
                     },
                     child: Container(
                       height: 70,
@@ -70,7 +76,7 @@ class UserFollowersPage extends StatelessWidget {
                           FutureBuilder<bool>(
                             future:
                                 //.................................
-                                followService
+                                folloservice
                                     .isFollowing(data.userid.toString()),
                             builder: (context, snapshot) {
                               if (!snapshot.hasData) {
@@ -80,14 +86,17 @@ class UserFollowersPage extends StatelessWidget {
                               return ElevatedButton(
                                 onPressed: () async {
                                   if (isFollowing) {
-                                    await followService
-                                        .unfollowUser(data.userid.toString());
+                                    await
+                                    //  pro.unfollowcount(
+                                    //     data.userid.toString());
+                                   folloservice. unfollowUser(data.userid.toString());
                                   } else {
-                                    await followService
+                                    await
+                                      // pro.followusercount(data.userid.toString());
+                                    folloservice
                                         .followUser(data.userid.toString());
                                   }
-                                  // // Refresh the state to update the button text
-                                  // (context as Element).reassemble();
+                                
                                 },
                                 child: Text(
                                   isFollowing ? 'Unfollow ' : 'Follow',
@@ -112,14 +121,4 @@ class UserFollowersPage extends StatelessWidget {
       ),
     );
   }
-
-  // ImageProvider getImageProvider(String? imageUrl) {
-  //   if (imageUrl != null &&
-  //       imageUrl.isNotEmpty &&
-  //       Uri.tryParse(imageUrl)?.hasAbsolutePath == true) {
-  //     return NetworkImage(imageUrl);
-  //   } else {
-  //     return const AssetImage('assets/images/1077114.png');
-  //   }
-  // }
 }

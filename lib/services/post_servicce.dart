@@ -7,6 +7,7 @@ import 'package:socialmedia/model/post_model.dart';
 import 'package:image_picker/image_picker.dart';
 
 class PostimageService {
+  String url = '';
   final String imagename = DateTime.now().microsecondsSinceEpoch.toString();
   final Reference firebasestorage = FirebaseStorage.instance.ref();
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
@@ -23,7 +24,7 @@ class PostimageService {
     final Reference uploadedImage = imageFolder.child("$imagename.jpg");
     try {
       await uploadedImage.putFile(image);
-      final url = await uploadedImage.getDownloadURL();
+       url = await uploadedImage.getDownloadURL();
     } catch (e) {
       throw Exception('Failed to upload image $e');
     }
@@ -51,11 +52,7 @@ class PostimageService {
   }
 
   Future<void> postdata(PostModel model) async {
-    try {
-      await postimgref.add(model);
-    } catch (e) {
-      throw Exception('Failed to add data $e');
-    }
+    await postimgref.add(model);
   }
 
   Stream<QuerySnapshot<PostModel>> getAllPosts() {
@@ -78,17 +75,16 @@ class PostimageService {
     }
   }
 
-Stream<QuerySnapshot<PostModel>> getUserPosts(String userId) {
-  log('Fetching posts for user: $userId');
-  return postimgref
-      .where('userid', isEqualTo: userId)
-      .orderBy('timestamp', descending: true)
-      .snapshots()
-      .handleError((error) {
-        log('Error fetching posts: $error');
-      });
-}
-
+  Stream<QuerySnapshot<PostModel>> getUserPosts(String userId) {
+    log('Fetching posts for user: $userId');
+    return postimgref
+        .where('userid', isEqualTo: userId)
+        .orderBy('timestamp', descending: true)
+        .snapshots()
+        .handleError((error) {
+      log('Error fetching posts: $error');
+    });
+  }
 
   Future<File?> pickImage() async {
     final ImagePicker picker = ImagePicker();

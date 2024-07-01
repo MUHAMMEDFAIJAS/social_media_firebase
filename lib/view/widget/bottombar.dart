@@ -1,41 +1,21 @@
 import 'dart:developer';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:socialmedia/view/home_screen.dart';
-import 'package:socialmedia/view/post_screen.dart';
-import 'package:socialmedia/view/users_screen.dart';
-import 'package:socialmedia/view/profile_screens.dart';
+import 'package:provider/provider.dart';
+import 'package:socialmedia/controller/bottom_bar_controller.dart';
 
-class Bottombar extends StatefulWidget {
+class Bottombar extends StatelessWidget {
   const Bottombar({super.key});
 
   @override
-  State<Bottombar> createState() => _BottombarState();
-}
-
-class _BottombarState extends State<Bottombar> {
-  int currentindex = 0;
-
-  final List<Widget> screens = [
-    const HomeScreen(),
-    PostScreen(),
-    UsersScreen(),
-    ProfileScreen(
-      userId: FirebaseAuth.instance.currentUser!.uid,
-    ),
-  ];
-
-  @override
   Widget build(BuildContext context) {
+    final pro = Provider.of<BottomBarProvider>(context);
     log('bottom bar');
     return Scaffold(
-      body: screens[currentindex],
+      body: pro.screens[pro.currentindex],
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: currentindex,
+        currentIndex: pro.currentindex,
         onTap: (newindex) {
-          setState(() {
-            currentindex = newindex;
-          });
+          pro.changevalue(newindex);
         },
         selectedItemColor: Colors.black,
         unselectedItemColor: Colors.blue,

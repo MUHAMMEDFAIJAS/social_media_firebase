@@ -1,121 +1,142 @@
-import 'dart:developer';
 import 'dart:io';
-
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:socialmedia/controller/image_controller.dart';
 import 'package:flutter_gradient_colors/flutter_gradient_colors.dart';
-import 'package:image_picker/image_picker.dart';
 
-class PostScreen extends StatefulWidget {
-  String? username;
-  PostScreen({super.key, this.username});
-
-  @override
-  State<PostScreen> createState() => _PostScreenState();
-}
-
-class _PostScreenState extends State<PostScreen> {
-  File? _image;
-  final ImagePicker _picker = ImagePicker();
-  final TextEditingController _captionController = TextEditingController();
-  bool _isUploading = false;
-  Future<void> _pickImage() async {
-    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      setState(() {
-        _image = File(pickedFile.path);
-      });
-    }
-  }
-
-  Future<void> _uploadImage() async {
-    if (_image == null) return;
-
-    setState(() {
-      _isUploading = true;
-    });
-
-    try {
-      String userId = FirebaseAuth.instance.currentUser!.uid;
-      String fileName = DateTime.now().millisecondsSinceEpoch.toString();
-      Reference storageRef = FirebaseStorage.instance
-          .ref()
-          .child('posts')
-          .child(userId)
-          .child('$fileName.jpg');
-
-      UploadTask uploadTask = storageRef.putFile(_image!);
-      TaskSnapshot snapshot = await uploadTask;
-      String downloadUrl = await snapshot.ref.getDownloadURL();
-
-      await FirebaseFirestore.instance.collection('posts').add({
-        'userId': userId,
-        'imageUrl': downloadUrl,
-        'caption': _captionController.text,
-        'timestamp': FieldValue.serverTimestamp(),
-      });
-
-      setState(() {
-        _image = null;
-        _captionController.clear();
-        _isUploading = false;
-      });
-
-      log('uploaded successfully');
-    } catch (e) {
-      setState(() {
-        _isUploading = false;
-      });
-      log('failed to upload');
-    }
-  }
+class PostScreen extends StatelessWidget {
+  const PostScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final provider = Provider.of<ImagesProvider>(context, listen: false);
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('New Post Create'),
+        actions: [
+          IconButton(
+            onPressed: () {
+              provider.clearPickedImage();
+            },
+            icon: const Icon(Icons.clear),
+          ),
+        ],
+      ),
       body: Container(
         height: double.infinity,
         width: double.infinity,
-        decoration: const BoxDecoration(
-            gradient: LinearGradient(
-                colors: GradientColors.seaBlue,
-                begin: Alignment.topLeft,
-                end: Alignment.centerRight)),
-        child: Padding(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: GradientColors.seaBlue,
+            begin: Alignment.topLeft,
+            end: Alignment.centerRight,
+          ),
+        ),
+        child: SingleChildScrollView(
           padding: const EdgeInsets.all(16.0),
-          child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-            if (_image != null)
-              Image.file(
-                _image!,
-                height: 200,
-                width: double.infinity,
-                fit: BoxFit.fill,
+          child: Column(
+            children: [
+              Consumer<ImagesProvider>(builder: (context, provider, _) {
+                return FutureBuilder<File?>(
+                  future: Future.value(provider.pickedImage),
+                  builder: (context, snapshot) {
+                    return Container(
+                      height: 200,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: Colors.black38,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: Color.fromARGB(255, 62, 60, 60),
+                          width: 1,
+                        ),
+                        image: snapshot.data != null
+                            ? DecorationImage(
+                                image: FileImage(snapshot.data!),
+                                fit: BoxFit.cover,
+                              )
+                            : null,
+                      ),
+                      child: snapshot.data == null
+                          ? Center(
+                              child: Text(
+                                "No image selected",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            )
+                          : null,
+                    );
+                  },
+                );
+              }),
+              const SizedBox(height: 20),
+              Text(
+                "Pick image",
+                style: TextStyle(color: Colors.white),
               ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _pickImage,
-              child: Text('Pick Image'),
-            ),
-            TextField(
-              controller: _captionController,
-              decoration: InputDecoration(
-                labelText: 'Caption',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  IconButton(
+                    onPressed: () {
+                      provider.pickImg();
+                    },
+                    icon: const Icon(
+                      Icons.photo,
+                      color: Colors.white,
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () {
+                      provider.pickImgCam();
+                    },
+                    icon: const Icon(
+                      Icons.add_a_photo,
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              TextFormField(
+                style: const TextStyle(color: Colors.white),
+                controller: provider.descriptionCtrl,
+                maxLines: 1,
+                decoration: InputDecoration(
+                  labelText: "Description",
+                  labelStyle: TextStyle(color: Colors.white),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(color: Colors.white),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(color: Colors.white),
+                  ),
                 ),
               ),
-              maxLines: 3,
-            ),
-            const SizedBox(height: 20),
-            _isUploading
-                ? CircularProgressIndicator()
-                : ElevatedButton(
-                    onPressed: _uploadImage,
-                    child: Text('Post'),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () async {
+                  await provider.uploadImage();
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color.fromARGB(255, 19, 30, 55),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 16, horizontal: 32),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
                   ),
-          ]),
+                ),
+                child: provider.isLoading
+                    ? CircularProgressIndicator()
+                    : Text("Submit"),
+              ),
+            ],
+          ),
         ),
       ),
     );

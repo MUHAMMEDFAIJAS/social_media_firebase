@@ -12,14 +12,11 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // final FollowServic = FollowService();
-    // UserModel user ;
-
-    // String userid = FirebaseAuth.instance.currentUser!.uid;
+   
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        // title: Text(userid.toString()),
+   
         title:const Text('home screen'),
         actions: [
           IconButton(

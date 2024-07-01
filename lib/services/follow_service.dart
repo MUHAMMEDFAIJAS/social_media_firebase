@@ -1,17 +1,191 @@
 
+
+
+// import 'package:cloud_firestore/cloud_firestore.dart';
+// import 'package:firebase_auth/firebase_auth.dart';
+// import 'package:flutter/material.dart';
+// import 'package:socialmedia/model/user_model.dart';
+
+// class FollowService {
+//   final FirebaseFirestore firestore = FirebaseFirestore.instance;
+//   final FirebaseAuth _auth = FirebaseAuth.instance;
+
+//   // Follow function
+//   Future<void> followUser(String followUserId) async {
+//     try {
+//       String currentUserId = _auth.currentUser!.uid;
+
+//       // Add to current user's 'following' collection
+//       await firestore
+//           .collection('following')
+//           .doc(currentUserId)
+//           .collection('userFollowing')
+//           .doc(followUserId)
+//           .set({'following': true});
+
+//       // Add to followed user's 'followers' collection
+//       await firestore
+//           .collection('followers')
+//           .doc(followUserId)
+//           .collection('userFollowers')
+//           .doc(currentUserId)
+//           .set({'followed': true});
+
+//       // Increment follower count for followed user
+//       await firestore.collection('users').doc(followUserId).update({
+//         'followers': FieldValue.increment(1),
+//       });
+
+//       // Increment following count for current user
+//       await firestore.collection('users').doc(currentUserId).update({
+//         'following': FieldValue.increment(1),
+//       });
+//     } catch (e) {
+//       print("Error following user: $e");
+//     }
+//   }
+
+//   // Unfollow function
+//   Future<void> unfollowUser(String unfollowUserId) async {
+//     try {
+//       String currentUserId = _auth.currentUser!.uid;
+
+//       // Remove from current user's 'following' collection
+//       await firestore
+//           .collection('following')
+//           .doc(currentUserId)
+//           .collection('userFollowing')
+//           .doc(unfollowUserId)
+//           .delete();
+
+//       // Remove from unfollowed user's 'followers' collection
+//       await firestore
+//           .collection('followers')
+//           .doc(unfollowUserId)
+//           .collection('userFollowers')
+//           .doc(currentUserId)
+//           .delete();
+
+//       // Decrement follower count for unfollowed user
+//       await firestore.collection('users').doc(unfollowUserId).update({
+//         'followers': FieldValue.increment(-1),
+//       });
+
+//       // Decrement following count for current user
+//       await firestore.collection('users').doc(currentUserId).update({
+//         'following': FieldValue.increment(-1),
+//       });
+//     } catch (e) {
+//       print("Error unfollowing user: $e");
+//     }
+//   }
+
+//   Future<bool> isFollowing(String userId) async {
+//     try {
+//       String currentUserId = _auth.currentUser!.uid;
+//       DocumentSnapshot doc = await firestore
+//           .collection('following')
+//           .doc(currentUserId)
+//           .collection('userFollowing')
+//           .doc(userId)
+//           .get();
+//       return doc.exists;
+//     } catch (e) {
+//       print("Error checking if following: $e");
+//       return false;
+//     }
+//   }
+
+//   Future<UserModel?> getUserData(BuildContext context, String userId) async {
+//     try {
+//       DocumentSnapshot doc =
+//           await firestore.collection('users').doc(userId).get();
+//       return UserModel.fromJson(doc.data() as Map<String, dynamic>);
+//     } catch (e) {
+//       print("Error getting user data: $e");
+//       return null;
+//     }
+//   }
+
+//   CollectionReference get firestores => firestore.collection('users');
+
+
+
+//   Future<List<UserModel>> getUserFollowers(String userId) async {
+//     try {
+//       QuerySnapshot snapshot = await firestore
+//           .collection('followers')
+//           .doc(userId)
+//           .collection('userFollowers')
+//           .get();
+
+//       List<String> followerIds = snapshot.docs.map((doc) => doc.id).toList();
+//       List<UserModel> followers = [];
+
+//       for (String id in followerIds) {
+//         DocumentSnapshot userDoc =
+//             await firestore.collection('users').doc(id).get();
+//         if (userDoc.exists) {
+//           followers
+//               .add(UserModel.fromJson(userDoc.data() as Map<String, dynamic>));
+//         }
+//       }
+
+//       return followers;
+//     } catch (e) {
+//       print("Error fetching followers: $e");
+//       return [];
+//     }
+//   }
+
+//   Future<List<UserModel>> getUserFollowing(String userId) async {
+//     try {
+//       QuerySnapshot snapshot = await firestore
+//           .collection('following')
+//           .doc(userId)
+//           .collection('userFollowing')
+//           .get();
+
+//       List<String> followingIds = snapshot.docs.map((doc) => doc.id).toList();
+//       List<UserModel> following = [];
+
+//       for (String id in followingIds) {
+//         DocumentSnapshot userDoc =
+//             await firestore.collection('users').doc(id).get();
+//         if (userDoc.exists) {
+//           following
+//               .add(UserModel.fromJson(userDoc.data() as Map<String, dynamic>));
+//         }
+//       }
+
+//       return following;
+//     } catch (e) {
+//       print("Error fetching following: $e");
+//       return [];
+//     }
+//   }
+
+//    CollectionReference firestores =
+//       FirebaseFirestore.instance.collection("users");
+
+
+//    Future<UserModel?> userDataGeting(BuildContext context, String userId) async {
+//     return await service.getUserData(context, userId);
+//   }
+
+// }
+
+
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:socialmedia/model/user_model.dart';
 
 class FollowService {
-
-
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  Future<List<UserModel>> getUserFollowers(String userId) async {
+ Future<List<UserModel>> getUserFollowers(String userId) async {
     try {
       QuerySnapshot snapshot = await firestore
           .collection('followers')
@@ -20,16 +194,14 @@ class FollowService {
           .get();
 
       List<String> followerIds = snapshot.docs.map((doc) => doc.id).toList();
-      List<UserModel> followers = [];
-      for (int i = 0; i < followerIds.length; i++) {
-        String id = followerIds[i];
-        DocumentSnapshot userDoc =
-            await firestore.collection('users').doc(id).get();
-        if (userDoc.exists) {
-          followers
-              .add(UserModel.fromJson(userDoc.data() as Map<String, dynamic>));
-        }
+ List<UserModel> followers = [];
+    for (int i = 0; i < followerIds.length; i++) {
+      String id = followerIds[i];
+      DocumentSnapshot userDoc = await firestore.collection('users').doc(id).get();
+      if (userDoc.exists) {
+        followers.add(UserModel.fromJson(userDoc.data() as Map<String, dynamic>));
       }
+    }
 
       return followers;
     } catch (e) {
@@ -77,13 +249,11 @@ class FollowService {
       await firestore.collection('users').doc(currentUserId).update({
         'following': FieldValue.increment(-1),
       });
-    } catch (e) {
-      throw Exception('failed to follow $e');
-    }
+    } catch (e) {}
   }
 
   Future<bool> isFollowing(String userId) async {
-    String currentUserId = _auth.currentUser!.uid;
+    String currentUserId = _auth.currentUser?.uid??"";
     DocumentSnapshot doc = await firestore
         .collection('followers')
         .doc(currentUserId)
@@ -99,22 +269,13 @@ class FollowService {
           await firestore.collection('users').doc(userId).get();
       return UserModel.fromJson(doc.data() as Map<String, dynamic>);
     } catch (e) {
-      throw Exception("gett data is error $e");
+      ShowSnackBar(context, "gett data is error $e");
     }
+    return null;
   }
 
-
-  // //   // /// 
-
-
-   CollectionReference firestores =
-      FirebaseFirestore.instance.collection('users');
-
-  Stream<List<UserModel>> getusers() {
-   return firestores.snapshots().map((snapshot) => snapshot.docs
-        .map((docs) => UserModel.fromJson(docs.data() as Map<String, dynamic>))
-        .toList());
+  void ShowSnackBar(BuildContext context, String message) {
+    final snackBar = SnackBar(content: Text(message));
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
-
-
 }

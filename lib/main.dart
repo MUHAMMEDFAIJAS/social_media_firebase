@@ -1,5 +1,10 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:socialmedia/controller/bottom_bar_controller.dart';
+import 'package:socialmedia/controller/follow_controller.dart';
+import 'package:socialmedia/controller/image_controller.dart';
+import 'package:socialmedia/controller/user_controller.dart';
 import 'package:socialmedia/firebase_options.dart';
 import 'package:socialmedia/view/start_up_widget/login_screen.dart';
 
@@ -16,9 +21,25 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: LoginScreen(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (context) => BottomBarProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => ImagesProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => FollowController(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => UserController(),
+        ),
+      ],
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        home: LoginScreen(),
+      ),
     );
   }
 }
