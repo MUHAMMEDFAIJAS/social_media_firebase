@@ -13,8 +13,7 @@ class UserController extends ChangeNotifier {
     return service.getUser();
   }
 
-  Stream<QuerySnapshot<PostModel>> fetchPostUser(
-      PostModel model, String currentUserId) {
-    return imgservice.getUserPosts(currentUserId);
+  Stream<QuerySnapshot<PostModel>> fetchPostUser(PostModel model, String currentUserId) {
+    return imgservice.getPostUser(model, currentUserId);
   }
 }

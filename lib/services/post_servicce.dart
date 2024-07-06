@@ -1,10 +1,9 @@
-import 'dart:io';
 import 'dart:developer';
+import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:socialmedia/model/post_model.dart';
-import 'package:image_picker/image_picker.dart';
 
 class PostimageService {
   String url = '';
@@ -24,9 +23,9 @@ class PostimageService {
     final Reference uploadedImage = imageFolder.child("$imagename.jpg");
     try {
       await uploadedImage.putFile(image);
-       url = await uploadedImage.getDownloadURL();
+      url = await uploadedImage.getDownloadURL();
     } catch (e) {
-      throw Exception('Failed to upload image $e');
+      throw Exception('Failed to upload image: $e');
     }
   }
 
@@ -35,91 +34,56 @@ class PostimageService {
       final Reference editImageRef =
           FirebaseStorage.instance.refFromURL(imageUrl);
       await editImageRef.putFile(updateImage);
-      final newUrl = await editImageRef.getDownloadURL();
-      return newUrl;
+      return await editImageRef.getDownloadURL();
     } catch (e) {
-      throw Exception('Failed to update image $e');
+      throw Exception('Failed to update image: $e');
     }
   }
 
-  Future<void> deleteImage(String imageUrl) async {
+  Future<void> deleteImage(
+    String imageUrl,
+  ) async {
     try {
-      final Reference delete = FirebaseStorage.instance.refFromURL(imageUrl);
-      await delete.delete();
+      final Reference deleteRef = FirebaseStorage.instance.refFromURL(imageUrl);
+      await deleteRef.delete();
     } catch (e) {
-      throw Exception('Failed to delete $e');
+      throw Exception('Failed to delete image: $e');
     }
   }
 
-  Future<void> postdata(PostModel model) async {
+  Future<void> deletedescription(String description) async {
+    try {
+      final Reference deleteRef =
+          FirebaseStorage.instance.refFromURL(description);
+      await deleteRef.delete();
+    } catch (e) {
+      throw Exception('Failed to delete description: $e');
+    }
+  }
+
+  Future<void> addPost(PostModel model) async {
     await postimgref.add(model);
   }
 
-  Stream<QuerySnapshot<PostModel>> getAllPosts() {
-    return postimgref.orderBy('timestamp', descending: true).snapshots();
+  Stream<QuerySnapshot<PostModel>> getPost() {
+    return postimgref.orderBy("time", descending: true).snapshots();
   }
 
   Future<void> deletePost(String id) async {
+    log('deleted image');
+    await postimgref.doc(id).delete();
+  }
+
+  Stream<QuerySnapshot<PostModel>> getPostUser(
+      PostModel model, String currentUserId) {
     try {
-      await postimgref.doc(id).delete();
-    } catch (e) {
-      print('Failed to delete data $e');
-    }
-  }
-
-  Future<void> updatePost(PostModel model, String id) async {
-    try {
-      await postimgref.doc(id).update(model.tojson());
-    } catch (e) {
-      print('Failed to update data: ${e.toString()}');
-    }
-  }
-
-  Stream<QuerySnapshot<PostModel>> getUserPosts(String userId) {
-    log('Fetching posts for user: $userId');
-    return postimgref
-        .where('userid', isEqualTo: userId)
-        .orderBy('timestamp', descending: true)
-        .snapshots()
-        .handleError((error) {
-      log('Error fetching posts: $error');
-    });
-  }
-
-  Future<File?> pickImage() async {
-    final ImagePicker picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      return File(pickedFile.path);
-    }
-    return null;
-  }
-
-  Future<void> uploadImage(File image, String caption) async {
-    final String userId = FirebaseAuth.instance.currentUser!.uid;
-    final String fileName = DateTime.now().millisecondsSinceEpoch.toString();
-    final Reference storageRef = FirebaseStorage.instance
-        .ref()
-        .child('posts')
-        .child(userId)
-        .child('$fileName.jpg');
-
-    try {
-      final UploadTask uploadTask = storageRef.putFile(image);
-      final TaskSnapshot snapshot = await uploadTask;
-      final String downloadUrl = await snapshot.ref.getDownloadURL();
-
-      await FirebaseFirestore.instance.collection('posts').add({
-        'userid': userId,
-        'image': downloadUrl,
-        'description': caption,
-        'timestamp': FieldValue.serverTimestamp(),
-      });
-
-      log('Uploaded successfully');
-    } catch (e) {
-      log('Failed to upload');
-      throw Exception('Failed to upload image $e');
+      if (model.userid == currentUserId) {
+        return postimgref.where('userid', isEqualTo: currentUserId).snapshots();
+      } else {
+        return Stream<QuerySnapshot<PostModel>>.empty();
+      }
+    } on FirebaseException catch (e) {
+      throw Exception('Failed to fetch user posts: $e');
     }
   }
 }

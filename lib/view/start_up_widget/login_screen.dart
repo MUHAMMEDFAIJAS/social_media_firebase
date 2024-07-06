@@ -29,6 +29,11 @@ class LoginScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(20)))),
           TextButton(
               onPressed: () {
+                UserAuthServices().signInWithGoogle(context);
+              },
+              child: Text('sign iin with google')),
+          TextButton(
+              onPressed: () {
                 login(context);
                 // UserAuthServices()
                 //     .loginAuth(emailController.text, passwordController.text);

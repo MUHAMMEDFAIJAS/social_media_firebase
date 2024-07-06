@@ -9,7 +9,7 @@ class BottomBarProvider extends ChangeNotifier {
   int currentindex = 0;
 
   final List screens = [
-    const HomeScreen(),
+     HomeScreen(),
     PostScreen(),
     UsersScreen(),
     ProfileScreen(

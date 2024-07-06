@@ -7,7 +7,8 @@ class PostModel {
   bool? isLiked;
   String? username;
   String? userImage;
-  Timestamp? timestamp;
+  // Timestamp? timestamp;
+  String? time;
 
   PostModel({
     this.image,
@@ -16,7 +17,8 @@ class PostModel {
     this.userid,
     this.username,
     this.userImage,
-    this.timestamp,
+    // this.timestamp,
+    this.time,
   });
 
   PostModel.fromjson(Map<String, dynamic> json) {
@@ -26,7 +28,8 @@ class PostModel {
     userid = json['userid'];
     username = json['username'];
     userImage = json['userimage'];
-    timestamp = json['timestamp'];
+    // timestamp = json['timestamp'];
+    time = json['time'];
   }
   Map<String, dynamic> tojson() {
     return {
@@ -36,7 +39,8 @@ class PostModel {
       'userid': userid,
       'username': username,
       'userimage': userImage,
-      'timestamp': timestamp,
+      // 'timestamp': timestamp,
+      'time':time,
     };
   }
 }

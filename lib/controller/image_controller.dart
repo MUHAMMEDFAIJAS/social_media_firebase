@@ -1,75 +1,104 @@
 import 'dart:io';
-import 'dart:developer';
-
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
+import 'package:socialmedia/model/post_model.dart';
+import 'package:socialmedia/services/follow_service.dart';
+import 'package:socialmedia/services/post_servicce.dart';
+import 'package:socialmedia/view/widget/bottombar.dart';
 
 class ImagesProvider extends ChangeNotifier {
-  File? pickedImage;
-  final ImagePicker _picker = ImagePicker();
   final TextEditingController descriptionCtrl = TextEditingController();
+  PostimageService imgservice = PostimageService();
+
+  File? pickedImage;
+
   bool isLoading = false;
 
-  Future<void> pickImg() async {
-    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+  ImagePicker picker = ImagePicker();
+
+  Future<void> pickImage({required ImageSource source}) async {
+    final pickedFile = await picker.pickImage(source: source);
     if (pickedFile != null) {
       pickedImage = File(pickedFile.path);
       notifyListeners();
-    }
-  }
-
-  Future<void> pickImgCam() async {
-    final pickedFile = await _picker.pickImage(source: ImageSource.camera);
-    if (pickedFile != null) {
-      pickedImage = File(pickedFile.path);
-      notifyListeners();
-    }
-  }
-
-  Future<void> uploadImage() async {
-    if (pickedImage == null) return;
-
-    isLoading = true;
-    notifyListeners();
-
-    try {
-      String userId = FirebaseAuth.instance.currentUser!.uid;
-      String fileName = DateTime.now().millisecondsSinceEpoch.toString();
-      Reference storageRef = FirebaseStorage.instance
-          .ref()
-          .child('posts')
-          .child(userId)
-          .child('$fileName.jpg');
-
-      UploadTask uploadTask = storageRef.putFile(pickedImage!);
-      TaskSnapshot snapshot = await uploadTask;
-      String downloadUrl = await snapshot.ref.getDownloadURL();
-
-      await FirebaseFirestore.instance.collection('posts').add({
-        'userid': userId,
-        'imageUrl': downloadUrl,
-        'caption': descriptionCtrl.text,
-        'timestamp': FieldValue.serverTimestamp(),
-      });
-
-      pickedImage = null;
-      descriptionCtrl.clear();
-      isLoading = false;
-      notifyListeners();
-
-      log('Uploaded successfully');
-    } catch (e) {
-      isLoading = false;
-      notifyListeners();
-      log('Failed to upload: $e');
     }
   }
 
   void clearPickedImage() {
     pickedImage = null;
+    descriptionCtrl.clear();
+    notifyListeners();
+  }
+
+  Future<void> addPost(BuildContext context, bool isLiked) async {
+    if (pickedImage == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Please select an image.")),
+      );
+      return;
+    }
+
+    isLoading = true;
+    notifyListeners();
+
+    final user = FirebaseAuth.instance.currentUser!.uid;
+    final userData = await FollowService().getUserData(context, user);
+
+    if (userData != null) {
+      await imgservice.addImage(File(pickedImage!.path));
+      String currentTime =
+          DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now());
+
+      PostModel postModel = PostModel(
+        username: userData.username,
+        userImage: userData.userimage,
+        image: imgservice.url,
+        description: descriptionCtrl.text,
+        userid: user,
+        isLiked: isLiked,
+        time: currentTime,
+      );
+
+      await imgservice.addPost(postModel);
+      clearPickedImage();
+
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const Bottombar(),
+        ),
+        (route) => false,
+      );
+    }
+
+    isLoading = false;
+    notifyListeners();
+  }
+
+  Future<void> deletepost(BuildContext context, String postId, String imageUrl,
+      String description) async {
+    try {
+      isLoading = true;
+      notifyListeners();
+
+      await imgservice.deletePost(postId);
+      await imgservice.deleteImage(imageUrl);
+      await imgservice.deletedescription(description);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Post deleted successfully.")),
+      );
+      isLoading = false;
+      notifyListeners();
+    } catch (e) {
+      isLoading = false;
+      notifyListeners();
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('failed to delete post: $e')),
+      );
+    }
     notifyListeners();
   }
 }

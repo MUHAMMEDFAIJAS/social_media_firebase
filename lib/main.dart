@@ -2,7 +2,9 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:socialmedia/controller/bottom_bar_controller.dart';
+import 'package:socialmedia/controller/comment_provider.dart';
 import 'package:socialmedia/controller/follow_controller.dart';
+import 'package:socialmedia/controller/homepage_provider.dart';
 import 'package:socialmedia/controller/image_controller.dart';
 import 'package:socialmedia/controller/user_controller.dart';
 import 'package:socialmedia/firebase_options.dart';
@@ -35,6 +37,12 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(
           create: (context) => UserController(),
         ),
+        ChangeNotifierProvider(
+          create: (context) => HomePageProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => CommentProvider(),
+        )
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

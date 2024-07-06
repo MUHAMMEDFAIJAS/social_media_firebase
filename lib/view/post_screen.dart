@@ -1,5 +1,7 @@
 import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:socialmedia/controller/image_controller.dart';
 import 'package:flutter_gradient_colors/flutter_gradient_colors.dart';
@@ -12,6 +14,7 @@ class PostScreen extends StatelessWidget {
     final provider = Provider.of<ImagesProvider>(context, listen: false);
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Color.fromARGB(255, 101, 50, 109), // Deep violet color
         title: const Text('New Post Create'),
         actions: [
           IconButton(
@@ -25,11 +28,15 @@ class PostScreen extends StatelessWidget {
       body: Container(
         height: double.infinity,
         width: double.infinity,
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: GradientColors.seaBlue,
-            begin: Alignment.topLeft,
-            end: Alignment.centerRight,
+            // colors: GradientColors.pink,
+            // begin: Alignment.topLeft,
+            // end: Alignment.centerRight,
+            colors: [
+              Color.fromARGB(255, 245, 69, 98),
+              Color.fromARGB(255, 141, 34, 241)
+            ],
           ),
         ),
         child: SingleChildScrollView(
@@ -37,43 +44,38 @@ class PostScreen extends StatelessWidget {
           child: Column(
             children: [
               Consumer<ImagesProvider>(builder: (context, provider, _) {
-                return FutureBuilder<File?>(
-                  future: Future.value(provider.pickedImage),
-                  builder: (context, snapshot) {
-                    return Container(
-                      height: 200,
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        color: Colors.black38,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: Color.fromARGB(255, 62, 60, 60),
-                          width: 1,
-                        ),
-                        image: snapshot.data != null
-                            ? DecorationImage(
-                                image: FileImage(snapshot.data!),
-                                fit: BoxFit.cover,
-                              )
-                            : null,
-                      ),
-                      child: snapshot.data == null
-                          ? Center(
-                              child: Text(
-                                "No image selected",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                ),
-                              ),
-                            )
-                          : null,
-                    );
-                  },
+                return Container(
+                  height: 200,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: Colors.black38,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: const Color.fromARGB(255, 62, 60, 60),
+                      width: 1,
+                    ),
+                    image: provider.pickedImage != null
+                        ? DecorationImage(
+                            image: FileImage(provider.pickedImage!),
+                            fit: BoxFit.cover,
+                          )
+                        : null,
+                  ),
+                  child: provider.pickedImage == null
+                      ? const Center(
+                          child: Text(
+                            "No image selected",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                            ),
+                          ),
+                        )
+                      : null,
                 );
               }),
               const SizedBox(height: 20),
-              Text(
+              const Text(
                 "Pick image",
                 style: TextStyle(color: Colors.white),
               ),
@@ -82,7 +84,7 @@ class PostScreen extends StatelessWidget {
                 children: [
                   IconButton(
                     onPressed: () {
-                      provider.pickImg();
+                      provider.pickImage(source: ImageSource.gallery);
                     },
                     icon: const Icon(
                       Icons.photo,
@@ -91,7 +93,7 @@ class PostScreen extends StatelessWidget {
                   ),
                   IconButton(
                     onPressed: () {
-                      provider.pickImgCam();
+                      provider.pickImage(source: ImageSource.camera);
                     },
                     icon: const Icon(
                       Icons.add_a_photo,
@@ -107,24 +109,24 @@ class PostScreen extends StatelessWidget {
                 maxLines: 1,
                 decoration: InputDecoration(
                   labelText: "Description",
-                  labelStyle: TextStyle(color: Colors.white),
+                  labelStyle: const TextStyle(color: Colors.white),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide(color: Colors.white),
+                    borderSide: const BorderSide(color: Colors.white),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide(color: Colors.white),
+                    borderSide: const BorderSide(color: Colors.white),
                   ),
                 ),
               ),
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () async {
-                  await provider.uploadImage();
+                  await provider.addPost(context, false);
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Color.fromARGB(255, 19, 30, 55),
+                  backgroundColor: const Color.fromARGB(255, 19, 30, 55),
                   padding:
                       const EdgeInsets.symmetric(vertical: 16, horizontal: 32),
                   shape: RoundedRectangleBorder(
@@ -132,8 +134,8 @@ class PostScreen extends StatelessWidget {
                   ),
                 ),
                 child: provider.isLoading
-                    ? CircularProgressIndicator()
-                    : Text("Submit"),
+                    ? const CircularProgressIndicator()
+                    : const Text("Submit"),
               ),
             ],
           ),
