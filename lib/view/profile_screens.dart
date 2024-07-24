@@ -29,6 +29,9 @@ class ProfileScreen extends StatelessWidget {
     final homeProvider = Provider.of<HomePageProvider>(context, listen: false);
 
     return Scaffold(
+
+
+      
       appBar: AppBar(
         backgroundColor: const Color.fromARGB(255, 101, 50, 109), 
         actions: [
