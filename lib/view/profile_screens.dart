@@ -11,6 +11,7 @@ import 'package:socialmedia/controller/user_controller.dart';
 import 'package:socialmedia/model/post_model.dart';
 import 'package:socialmedia/model/user_model.dart';
 import 'package:socialmedia/services/follow_service.dart';
+import 'package:socialmedia/services/post_servicce.dart';
 import 'package:socialmedia/services/user_auth_services.dart';
 import 'package:socialmedia/view/widget/user_following.dart';
 import 'package:socialmedia/view/widget/user_followerss.dart';
@@ -160,6 +161,8 @@ class ProfileScreen extends StatelessWidget {
                         final posts = snapshot.data!.docs
                             .map((doc) => doc.data())
                             .toList();
+                        List<QueryDocumentSnapshot<PostModel>> postRef =
+                            snapshot.data?.docs ?? [];
 
                         return GridView.builder(
                           gridDelegate:
@@ -172,6 +175,7 @@ class ProfileScreen extends StatelessWidget {
                           itemCount: posts.length,
                           itemBuilder: (context, index) {
                             final post = posts[index];
+                            final id = postRef[index].id;
                             return Card(
                               shadowColor: Colors.black,
                               margin: const EdgeInsets.symmetric(
@@ -194,12 +198,8 @@ class ProfileScreen extends StatelessWidget {
                                   ),
                                   IconButton(
                                     onPressed: () {
-                                      imagepro.deletepost(
-                                        context,
-                                        post.userid!,
-                                        post.image!,
-                                        post.description!,
-                                      );
+                                      
+                                      PostimageService().deletePost(id);
                                     },
                                     icon: const Icon(
                                       Icons.delete,

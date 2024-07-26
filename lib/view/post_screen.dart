@@ -14,7 +14,7 @@ class PostScreen extends StatelessWidget {
     final provider = Provider.of<ImagesProvider>(context, listen: false);
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color.fromARGB(255, 101, 50, 109), // Deep violet color
+        backgroundColor: Color.fromARGB(255, 101, 50, 109), 
         title: const Text('New Post Create'),
         actions: [
           IconButton(
@@ -84,7 +84,7 @@ class PostScreen extends StatelessWidget {
                 children: [
                   IconButton(
                     onPressed: () {
-                      provider.pickImage(source: ImageSource.gallery);
+                      provider.pickImgCam();
                     },
                     icon: const Icon(
                       Icons.photo,
@@ -93,7 +93,7 @@ class PostScreen extends StatelessWidget {
                   ),
                   IconButton(
                     onPressed: () {
-                      provider.pickImage(source: ImageSource.camera);
+                      provider.pickImggallery();
                     },
                     icon: const Icon(
                       Icons.add_a_photo,

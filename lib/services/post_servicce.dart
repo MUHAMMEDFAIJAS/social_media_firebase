@@ -40,9 +40,7 @@ class PostimageService {
     }
   }
 
-  Future<void> deleteImage(
-    String imageUrl,
-  ) async {
+  Future<void> deleteImage(String imageUrl) async {
     try {
       final Reference deleteRef = FirebaseStorage.instance.refFromURL(imageUrl);
       await deleteRef.delete();
@@ -51,15 +49,7 @@ class PostimageService {
     }
   }
 
-  Future<void> deletedescription(String description) async {
-    try {
-      final Reference deleteRef =
-          FirebaseStorage.instance.refFromURL(description);
-      await deleteRef.delete();
-    } catch (e) {
-      throw Exception('Failed to delete description: $e');
-    }
-  }
+
 
   Future<void> addPost(PostModel model) async {
     await postimgref.add(model);

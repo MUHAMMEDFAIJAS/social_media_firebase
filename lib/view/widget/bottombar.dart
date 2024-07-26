@@ -19,7 +19,7 @@ class Bottombar extends StatelessWidget {
         },
         selectedItemColor: Colors.black,
         unselectedItemColor: Colors.blue,
-        backgroundColor: Colors.amber,
+        backgroundColor: Colors.red,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(icon: Icon(Icons.add), label: 'post'),
