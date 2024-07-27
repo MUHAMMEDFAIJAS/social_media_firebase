@@ -21,7 +21,7 @@ class UsersScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('All Users'),
-        backgroundColor: Color.fromARGB(255, 101, 50, 109), 
+        backgroundColor: const Color.fromARGB(255, 101, 50, 109), 
       ),
       body: Container(
        
@@ -37,7 +37,7 @@ class UsersScreen extends StatelessWidget {
           stream: pro.getUsers(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(
+              return const Center(
                 child: CircularProgressIndicator(),
               );
             } else if (snapshot.hasError) {
@@ -45,7 +45,7 @@ class UsersScreen extends StatelessWidget {
                 child: Text('Error: ${snapshot.error}'),
               );
             } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-              return Center(
+              return const Center(
                 child: Text('No users found.'),
               );
             } else {
@@ -73,7 +73,7 @@ class UsersScreen extends StatelessWidget {
                           color: Colors.white.withOpacity(0.9),
                           borderRadius: BorderRadius.circular(10),
                           boxShadow: [
-                            BoxShadow(
+                            const BoxShadow(
                               color: Colors.black26,
                               blurRadius: 5,
                               offset: Offset(0, 2),
@@ -109,7 +109,7 @@ class UsersScreen extends StatelessWidget {
                                   .isFollowing(data.userid.toString()),
                               builder: (context, followSnapshot) {
                                 if (!followSnapshot.hasData) {
-                                  return CircularProgressIndicator();
+                                  return const CircularProgressIndicator();
                                 }
 
                                 bool isFollowing = followSnapshot.data!;
@@ -136,7 +136,7 @@ class UsersScreen extends StatelessWidget {
                                     child: Center(
                                       child: Text(
                                         isFollowing ? 'Unfollow' : 'Follow',
-                                        style: TextStyle(
+                                        style: const TextStyle(
                                           color: Colors.white,
                                           fontWeight: FontWeight.bold,
                                         ),

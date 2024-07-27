@@ -30,13 +30,13 @@ class ProfileScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color.fromARGB(255, 101, 50, 109), // Deep violet color
+        backgroundColor: const Color.fromARGB(255, 101, 50, 109), 
         actions: [
           IconButton(
             onPressed: () {
               UserAuthServices().logoutAuth(context);
             },
-            icon: Icon(Icons.logout),
+            icon:const Icon(Icons.logout),
           ),
         ],
       ),
@@ -62,7 +62,7 @@ class ProfileScreen extends StatelessWidget {
               gradient: LinearGradient(
                 colors: [
                   Color.fromARGB(255, 245, 69, 98),
-                  Color.fromARGB(255, 141, 34, 241)
+                  Color.fromARGB(255, 141, 34, 241),
                 ],
               ),
             ),
